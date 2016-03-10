@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/tarcisiojr/db-dumper/issues"
   },
-  "homepage": "https://github.com/tarcisiojr/db-dumper#readme"
+  "homepage": "https://github.com/tarcisiojr/db-dumper#readme",
+  "dependencies": {
+    "mysql": "^2.10.2"
+  }
 }
