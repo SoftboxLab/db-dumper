@@ -1,0 +1,26 @@
+{
+  "name": "db-dumper",
+  "version": "0.0.1",
+  "description": "Ferramenta para extrair registros recursivamente da base de dados.",
+  "main": "main.js",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tarcisiojr/db-dumper.git"
+  },
+  "keywords": [
+    "dabase",
+    "mysql",
+    "extract",
+    "dump",
+    "dumper"
+  ],
+  "author": "Tarcisio A. Magalhães Júnior",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tarcisiojr/db-dumper/issues"
+  },
+  "homepage": "https://github.com/tarcisiojr/db-dumper#readme"
+}
