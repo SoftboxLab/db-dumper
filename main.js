@@ -7,7 +7,7 @@ var config = {
     port: 3306,
     database: 'test',
     user: 'root',
-    passwrod: 'root'
+    password: 'root'
 };
 
 
