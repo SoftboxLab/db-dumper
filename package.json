@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/tarcisiojr/db-dumper#readme",
   "dependencies": {
+    "async": "^1.5.2",
     "mysql": "^2.10.2"
   }
 }
