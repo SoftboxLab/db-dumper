@@ -1,15 +1,15 @@
 var async        = require('async');
 var Cache        = require('./cache');
 var DBConnection = require('./db-connection');
+var hash         = require('object-hash');
 
-var config = {
-    host: 'localhost',
-    port: 3306,
-    database: 'test',
-    user: 'root',
-    password: 'root'
-};
-
+// var config = {
+//     host: 'localhost',
+//     port: 3306,
+//     database: 'test',
+//     user: 'root',
+//     password: 'root'
+// };
 
 
 var conn = DBConnection.create(config);
@@ -67,6 +67,16 @@ function encodeRecord(tableName, meta, record, callback) {
 function dumpRecord(tableName, meta, fks, record, callback) {
     var dumpFKs = [];
 
+    var recHash = hash(record);
+
+    if (Cache.get(recHash) != null) {
+        console.log('-- Skip ' + tableName + ': ' + meta.pk.map(function(pk) { return pk + ' => ' + record[pk]; }).join(' / '));
+        callback();
+        return;
+    }
+
+    Cache.set(recHash, true);
+
     if (fks != null) {
         fks.forEach(function(fk) {
             var filter = {};
@@ -95,7 +105,7 @@ function dumpRecords(tableName, records, callback) {
     ], function(err, result) {
         if (err) throw err;
 
-        console.log('-- Dumping records of ', tableName);
+        //console.log('-- Dumping records of ', tableName);
 
         var meta = result[0],
             fks  = result[1];
