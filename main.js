@@ -2,21 +2,15 @@ var async        = require('async');
 var Cache        = require('./cache');
 var DBConnection = require('./db-connection');
 
-// var config = {
-//     host: 'localhost',
-//     port: 3306,
-//     database: 'test',
-//     user: 'root',
-//     password: 'root'
-// };
-
 var config = {
-    host: '10.3.201.101',
-    port: 63306,
-    database: 'arc_producao',
-    user: 'arc_app',
-    password: 'homolog@2015'
+    host: 'localhost',
+    port: 3306,
+    database: 'test',
+    user: 'root',
+    password: 'root'
 };
+
+
 
 var conn = DBConnection.create(config);
 
