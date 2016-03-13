@@ -1,28 +1,29 @@
-var dumper  = require('./dumper');
-var program = require('commander');
+var DBDumper = require('./dumper');
+var encoders = require('./encoders');
+var program  = require('commander');
+var info     = require('./package.json');
 
 function toList(val) {
     return val.split(',').map(function(ele) { return ele.replace(/^\s*|\s*$/g, ''); });
 }
 
-/*
-db-dumper --table pedidos_venda --where
-*/
+var encodersNames = Object.keys(encoders).join('|');
 
 program
-  .version('0.0.1')
-  // .option('-p, --peppers', 'Add peppers')
-  // .option('-P, --pineapple', 'Add pineapple')
-  // .option('-b, --bbq-sauce', 'Add bbq sauce')
-  .option('-t, --tables [tables]', 'Table name', toList, [])
-  .option('-l, --limit [limit]', 'Condition to limite results of table', toList, [])
-  .option('-q, --query [query]', 'Query')
-  .option('-r, --force-references [depth]', 'References', parseInt, 0)
+  .version(info.version)
+  .option('-t, --tables [tables]',                  'Table name', toList, [])
+  .option('-l, --limit [limit]',                    'Condition to limite results of table', toList, [])
+  .option('-q, --query [query]',                    'Query')
+  .option('-r, --force-references [depth]',         'References', parseInt, 0)
+  .option('-o, --out <outputfile>',                 'Name of output file')
+  .option('-e, --encoder <' + encodersNames + '>',  'Name of encoder', new RegExp('^(' + encodersNames + ')$', 'ig'), 'sql')
+
   .option('-H, --host <host>',          'Database host')
   .option('-P, --port <port>',          'Database port')
   .option('-d, --database <database>',  'Database schema')
   .option('-u, --user <user>',          'Database username')
   .option('-p, --password <passwrd>',   'Database password')
+
   .parse(process.argv);
 
 if (program.tables.length == 0) {
@@ -52,7 +53,7 @@ for (var i = 0; i < program.tables.length; i++) {
     });
 }
 
-dumper.init({
+var dumper = new DBDumper({
     host: program.host,
     port: program.port,
     database: program.database,
@@ -60,6 +61,6 @@ dumper.init({
     password: program.password
 });
 
-dumper.dump(entities, function(err) {
+dumper.dump(entities, null, function(err) {
     if (err) throw err;
 });
