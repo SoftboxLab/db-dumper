@@ -40,7 +40,28 @@ function encodeRecord(tableName, meta, record, callback) {
         if (record[col] == null) {
             values.push('NULL');
         } else {
-            values.push("'" + record[col] + "'");
+            switch (meta.cols[col].type) {
+                case 'datetime':
+                case 'timestamp':
+                    var dt = new Date(record[col])
+                        .toISOString()
+                        .replace(/T/, ' ')
+                        .replace(/\..+/, '');
+
+                    values.push("'" + dt + "'");
+                    break;
+
+                case 'date':
+                    var dt = new Date(record[col])
+                        .toISOString()
+                        .replace(/T.*$/, '');
+
+                    values.push("'" + dt + "'");
+                    break;
+
+                default:
+                    values.push("'" + record[col] + "'");
+            }
         }
     });
 
@@ -70,11 +91,18 @@ function dumpRecord(tableName, forceReferences, meta, fks, record, callback) {
     var references = []
 
     if (forceReferences) {
+        forceReferences = false;
+
+        console.log('-- Forcing...');
         references.push(function(callback) {
             conn.getReferences(tableName, function(err, refs) {
                 var fncsRefs = [];
 
+                //console.log(' -- Refs: ' + refs.join(', '));
+
                 async.map(refs, function(refTable, callback) {
+                    console.log('-- Getting fks: ' + refTable);
+
                     conn.getFKs(refTable, function(err, fks) {
                         var ret = [];
 
