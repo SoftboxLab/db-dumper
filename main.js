@@ -17,6 +17,7 @@ program
   .option('-t, --tables [tables]', 'Table name', toList, [])
   .option('-l, --limit [limit]', 'Condition to limite results of table', toList, [])
   .option('-q, --query [query]', 'Query')
+  .option('-r, --force-references', 'References')
   .option('-H, --host <host>',          'Database host')
   .option('-P, --port <port>',          'Database port')
   .option('-d, --database <database>',  'Database schema')
@@ -46,7 +47,8 @@ for (var i = 0; i < program.tables.length; i++) {
     entities.push({
         table: program.tables[i],
         query: program.query || null,
-        limit: limit
+        limit: limit,
+        forceReferences: program.forceReferences || false
     });
 }
 
@@ -58,4 +60,6 @@ dumper.init({
     password: program.password
 });
 
-dumper.dump(entities);
+dumper.dump(entities, function(err) {
+    if (err) throw err;
+});

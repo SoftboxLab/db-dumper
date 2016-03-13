@@ -38,6 +38,24 @@ module.exports = {
                 conn.end();
             },
 
+            getReferences: function(tableName, callback) {
+                var refs = Cache.get('db-refs-' + tableName);
+
+                if (refs != null) {
+                    callback(null, refs);
+                    return;
+                }
+
+                this.queryFile('get-references', [tableName, cfg.database], function (err, result) {
+                    if (err) {
+                        console.log(err);
+                        throw err;
+                    }
+
+                    callback && callback(null, result.map(function(ele) { return ele.table_name; }));
+                });
+            },
+
             getFKs: function(tableName, callback) {
                 var fks = Cache.get('db-fk-' + tableName);
 

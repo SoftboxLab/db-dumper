@@ -54,7 +54,7 @@ function encodeRecord(tableName, meta, record, callback) {
     callback && callback(null, str);
 }
 
-function dumpRecord(tableName, meta, fks, record, callback) {
+function dumpRecord(tableName, forceReferences, meta, fks, record, callback) {
     var dumpFKs = [];
 
     var recHash = hash(record);
@@ -67,6 +67,57 @@ function dumpRecord(tableName, meta, fks, record, callback) {
 
     Cache.set(recHash, true);
 
+    var references = []
+
+    if (forceReferences) {
+        references.push(function(callback) {
+            conn.getReferences(tableName, function(err, refs) {
+                var fncsRefs = [];
+
+                async.map(refs, function(refTable, callback) {
+                    conn.getFKs(refTable, function(err, fks) {
+                        var ret = [];
+
+                        fks.forEach(function(fk) {
+                            if (fk.table != tableName) {
+                                return;
+                            }
+
+                            var filter = {};
+
+                            fk.cols.forEach(function(reg) {
+                                filter[reg.fk] = record[reg.pk];
+                            });
+
+                            ret.push({table: refTable, filter: filter});
+                        });
+
+                        callback(null, ret);
+                    });
+                }, function(err, refTables) {
+                    var refs = [];
+
+                    refTables.forEach(function(ele) {
+                        refs = refs.concat(ele);
+                    });
+
+                    refs = refs.map(function(ele) {
+                        return function(cb) {
+                            getRecords(ele.table, ele.filter, function(err, rows) {
+                                dumpRecords(ele.table, forceReferences, rows, cb);
+                            });
+                        };
+                    });
+
+                    async.parallel(refs, function() {
+                        callback(null);
+                    });
+                });
+            });
+        });
+    }
+
+
     if (fks != null) {
         fks.forEach(function(fk) {
             var filter = {};
@@ -78,17 +129,21 @@ function dumpRecord(tableName, meta, fks, record, callback) {
             dumpFKs.push(function(tbl, fil) {
                 return function(cb) {
                     getRecords(tbl, fil, function(err, rows) {
-                        dumpRecords(fk.table, rows, cb);
+                        dumpRecords(fk.table, forceReferences, rows, cb);
                     });
                 };
             }(fk.table, filter));
         });
     }
 
-    async.parallel(dumpFKs.concat([encodeRecord.bind(null, tableName, meta, record)]), callback);
+    async.parallel(
+        [].concat(dumpFKs)
+          .concat(references)
+          .concat([ encodeRecord.bind(null, tableName, meta, record) ]),
+        callback);
 }
 
-function dumpRecords(tableName, records, callback) {
+function dumpRecords(tableName, forceReferences, records, callback) {
     async.parallel([
         conn.getMeta.bind(conn, tableName),
         conn.getFKs.bind(conn, tableName)
@@ -100,11 +155,19 @@ function dumpRecords(tableName, records, callback) {
         var meta = result[0],
             fks  = result[1];
 
-        async.map(records, dumpRecord.bind(null, tableName, meta, fks), callback);
+        async.map(records, dumpRecord.bind(null, tableName, forceReferences, meta, fks), callback);
     });
 }
 
 var conn;
+
+function queryAndDump(entity, callback) {
+    conn.query(entity.query ? entity.query : 'select * from ' + entity.table + ' ' + entity.limit, function(err, rows) {
+        if (err) throw err;
+
+        dumpRecords(entity.table, entity.forceReferences, rows, callback);
+    });
+}
 
 module.exports = {
     init: function(cfg) {
@@ -115,18 +178,11 @@ module.exports = {
         conn.connect();
     },
 
-    load: function() {
-
-    },
-
     dump: function(entities, callback) {
-        entities.forEach(function(entity) {
-            conn.query('select * from ' + entity.table + ' ' + entity.limit, function(err, rows) {
-                dumpRecords(entity.table, rows, function() {
-                    console.log('-- Fim');
-                    conn.end();
-                });
-            });
+        async.map(entities, queryAndDump, function() {
+            conn.end();
+
+            callback && callback(null);
         });
     }
 }
