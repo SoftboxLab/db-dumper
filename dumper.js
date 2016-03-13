@@ -1,7 +1,9 @@
 var Cache        = require('./cache');
 var DBConnection = require('./db-connection');
+var encoders     = require('./encoders');
 var async        = require('async');
 var hash         = require('object-hash');
+
 
 
 
@@ -32,47 +34,8 @@ function getRecords(tableName, pk, callback) {
  * @param callback Callback
  */
 function encodeRecord(tableName, meta, record, callback) {
-    var insert = ['INSERT INTO ', tableName, ' ('].concat([meta.colsNames.join(', '), ') VALUES (']);
-
-    var values = [];
-
-    meta.colsNames.forEach(function(col) {
-        if (record[col] == null) {
-            values.push('NULL');
-        } else {
-            switch (meta.cols[col].type) {
-                case 'datetime':
-                case 'timestamp':
-                    var dt = new Date(record[col])
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, '');
-
-                    values.push("'" + dt + "'");
-                    break;
-
-                case 'date':
-                    var dt = new Date(record[col])
-                        .toISOString()
-                        .replace(/T.*$/, '');
-
-                    values.push("'" + dt + "'");
-                    break;
-
-                default:
-                    values.push("'" + record[col] + "'");
-            }
-        }
-    });
-
-    insert.push(values.join(', '));
-    insert.push(');');
-
-    var str = insert.join('');
-
-    console.log(str);
-
-    callback && callback(null, str);
+    //encoders.sql(conn, tableName, meta, record, callback);
+    encoders.json(conn, tableName, meta, record, callback);
 }
 
 function dumpRecord(tableName, forceReferences, meta, fks, record, callback) {
@@ -90,8 +53,8 @@ function dumpRecord(tableName, forceReferences, meta, fks, record, callback) {
 
     var references = []
 
-    if (forceReferences) {
-        forceReferences = false;
+    if (forceReferences > 0) {
+        forceReferences--;
 
         console.log('-- Forcing...');
         references.push(function(callback) {

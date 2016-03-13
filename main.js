@@ -17,7 +17,7 @@ program
   .option('-t, --tables [tables]', 'Table name', toList, [])
   .option('-l, --limit [limit]', 'Condition to limite results of table', toList, [])
   .option('-q, --query [query]', 'Query')
-  .option('-r, --force-references', 'References')
+  .option('-r, --force-references [depth]', 'References', parseInt, 0)
   .option('-H, --host <host>',          'Database host')
   .option('-P, --port <port>',          'Database port')
   .option('-d, --database <database>',  'Database schema')
@@ -48,7 +48,7 @@ for (var i = 0; i < program.tables.length; i++) {
         table: program.tables[i],
         query: program.query || null,
         limit: limit,
-        forceReferences: program.forceReferences || false
+        forceReferences: program.forceReferences || 0
     });
 }
 
