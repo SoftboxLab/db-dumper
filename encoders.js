@@ -8,36 +8,8 @@ module.exports = {
     sql: function(conn, tableName, meta, record, callback) {
         var insert = ['INSERT INTO ', tableName, ' ('].concat([meta.colsNames.join(', '), ') VALUES (']);
 
-        var values = [];
-
-        meta.colsNames.forEach(function(col) {
-            if (record[col] == null) {
-                values.push('NULL');
-            } else {
-                switch (meta.cols[col].type) {
-                    case 'datetime':
-                    case 'timestamp':
-                        var dt = new Date(record[col])
-                            .toISOString()
-                            .replace(/T/, ' ')
-                            .replace(/\..+/, '');
-
-                        values.push("'" + dt + "'");
-                        break;
-
-                    case 'date':
-                        var dt = new Date(record[col])
-                            .toISOString()
-                            .replace(/T.*$/, '');
-
-                        values.push("'" + dt + "'");
-                        break;
-
-                    default:
-                        values.push("'" + record[col] + "'");
-                }
-            }
-        });
+        // Convertendo os valores das colunas do registro (record).
+        var values = meta.colsNames.map(conn.toStr.bind(conn, tableName, meta, record));
 
         insert.push(values.join(', '));
         insert.push(');');

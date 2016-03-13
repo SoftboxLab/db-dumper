@@ -132,6 +132,28 @@ module.exports = {
 
                     callback && callback(null, meta);
                 });
+            },
+
+            toStr: function(tableName, meta, record, col) {
+                if (record[col] == null) {
+                    return 'NULL';
+                }
+
+                switch (meta.cols[col].type) {
+                    case 'datetime':
+                    case 'timestamp':
+                        return "'" + new Date(record[col])
+                            .toISOString()
+                            .replace(/T/, ' ')
+                            .replace(/\..+/, '') + "'";
+
+                    case 'date':
+                        return "'" + new Date(record[col])
+                            .toISOString()
+                            .replace(/T.*$/, '') + "'";
+                }
+
+                return "'" + record[col] + "'";
             }
         };
     }
