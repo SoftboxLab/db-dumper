@@ -53,6 +53,11 @@ for (var i = 0; i < program.tables.length; i++) {
     });
 }
 
+console.log('-- Dump params');
+console.log('-- Date...: ', new Date());
+console.log('-- Encoder: ', program.encoder || sql);
+console.log('-- Output.: ', program.output || 'console');
+
 var dumper = new DBDumper({
     host: program.host,
     port: program.port,
