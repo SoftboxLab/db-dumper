@@ -15,7 +15,7 @@ program
   .option('-l, --limit [limit]',                    'Condition to limite results of table', toList, [])
   .option('-q, --query [query]',                    'Query')
   .option('-r, --force-references [depth]',         'References', parseInt, 0)
-  .option('-o, --out <outputfile>',                 'Name of output file')
+  .option('-o, --output <outputfile>',              'Name of output file')
   .option('-e, --encoder <' + encodersNames + '>',  'Name of encoder', new RegExp('^(' + encodersNames + ')$', 'ig'), 'sql')
 
   .option('-H, --host <host>',          'Database host')
@@ -59,8 +59,8 @@ var dumper = new DBDumper({
     database: program.database,
     user: program.user,
     password: program.password
-});
+}, program.encoder, program.output);
 
-dumper.dump(entities, null, function(err) {
+dumper.dump(entities, function(err) {
     if (err) throw err;
 });

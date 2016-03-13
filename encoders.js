@@ -2,8 +2,6 @@ module.exports = {
     json: function(conn, tableName, meta, record, callback) {
         var str = JSON.stringify(record);
 
-        console.log(str);
-
         callback && callback(null, str);
     },
 
@@ -45,8 +43,6 @@ module.exports = {
         insert.push(');');
 
         var str = insert.join('');
-
-        console.log(str);
 
         callback && callback(null, str);
     }

@@ -1,14 +1,25 @@
 var Cache        = require('./cache');
 var DBConnection = require('./db-connection');
 var encoders     = require('./encoders');
+
 var async        = require('async');
 var hash         = require('object-hash');
+var fs           = require('fs');
 
-function DBDumper(config) {
+function DBDumper(config, encoderName, outputFile) {
     var conn = DBConnection.create(config);
     conn.connect();
 
-    var encoder = encoders.sql;
+    encoderName = (encoderName || 'sql').toLowerCase();
+
+    var encoder = !encoders[encoderName] ? encoders['sql'] : encoders[encoderName];
+    var output  = function(data, callback) { console.log(data); callback && callback(null); };
+
+    if (outputFile) {
+        output = function(data, callback) {
+            fs.appendFile(outputFile, data + '\n', callback);
+        }
+    }
 
     /**
      * Obtem os regisros da tabela pelos dados do filtro ({col1: valor1 ... coln: valorn}) fornecido.
@@ -36,7 +47,9 @@ function DBDumper(config) {
      * @param callback Callback
      */
     function encodeRecord(tableName, meta, record, callback) {
-        encoder(conn, tableName, meta, record, callback);
+        encoder(conn, tableName, meta, record, function(err, data) {
+            output(data, callback);
+        });
     }
 
     function dumpRecord(tableName, forceReferences, meta, fks, record, callback) {
@@ -159,12 +172,7 @@ function DBDumper(config) {
         });
     }
 
-    this.dump = function(entities, encoderName, callback) {
-        encoderName = (encoderName || 'sql').toLowerCase();
-
-        encoder = !encoders[encoderName] ? encoders['sql'] : encoders[encoderName];
-
-
+    this.dump = function(entities, callback) {
         async.map(entities, queryAndDump, function() {
             conn.end();
 
