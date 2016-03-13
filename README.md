@@ -11,5 +11,5 @@ npm install
 Após instalada as dependencias executar o seguinte comando:
 
 ```
-node main.js
+node main.js -t table_a -H 127.0.0.1 -P 3306 -d test -u root -p root -r
 ```
