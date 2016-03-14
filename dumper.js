@@ -76,7 +76,7 @@ function DBDumper(config, encoderName, outputFile) {
             return;
         }
 
-        // Marcando registro do visitado.
+        // Marcando registro como visitado.
         Cache.set(recHash, true);
 
         var references = []
