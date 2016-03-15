@@ -1,5 +1,7 @@
 # db-dumper
 
+[![Join the chat at https://gitter.im/tarcisiojr/db-dumper](https://badges.gitter.im/tarcisiojr/db-dumper.svg)](https://gitter.im/tarcisiojr/db-dumper?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Ferramenta utilitária para extrair dados da base a partir de um registro origem mantendo a integridade referencial.
 
 Para utilizá-la necessário primeiramente instalar as dependências.
