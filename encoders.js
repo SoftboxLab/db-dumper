@@ -31,5 +31,19 @@ module.exports = {
         var str = insert.join('');
 
         callback && callback(null, str);
+    },
+
+    update: function() {
+        var insert = ['INSERT INTO ', tableName, ' ('].concat([meta.colsNames.join(', '), ') VALUES (']);
+
+        // Convertendo os valores das colunas do registro (record).
+        var values = meta.colsNames.map(conn.toStr.bind(conn, tableName, meta, record));
+
+        insert.push(values.join(', '));
+        insert.push(');');
+
+        var str = insert.join('');
+
+        callback && callback(null, str);
     }
 };

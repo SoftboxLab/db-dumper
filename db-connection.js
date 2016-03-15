@@ -153,7 +153,7 @@ module.exports = {
                             .replace(/T.*$/, '') + "'";
                 }
 
-                return "'" + record[col] + "'";
+                return "'" + record[col].toString().replace(/'/ig, "''") + "'";
             }
         };
     }
