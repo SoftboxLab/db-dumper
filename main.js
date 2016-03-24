@@ -14,6 +14,7 @@ program
   .option('-t, --tables [tables]',                  'Table name', toList, [])
   .option('-l, --limit [limit]',                    'Condition to limite results of table', toList, [])
   .option('-q, --query [query]',                    'Query')
+  .option('-s, --source [source]',                  'Path of the JSON config file source')
   .option('-r, --force-references [depth]',         'References', parseInt, 0)
   .option('-o, --output <outputfile>',              'Name of output file')
   .option('-e, --encoder <' + encodersNames + '>',  'Name of encoder', new RegExp('^(' + encodersNames + ')$', 'ig'), 'sql')
@@ -25,6 +26,16 @@ program
   .option('-p, --password <passwrd>',   'Database password')
 
   .parse(process.argv);
+
+if (program.source) {
+    try {
+        program = require(program.source);
+
+    } catch (err) {
+        console.error('O caminho do arquivo informado não é acessível ou não existe.');
+        process.exit(1);
+    }
+}
 
 if (program.tables.length == 0) {
     console.error('Informe a tabela a ser pesquisada');

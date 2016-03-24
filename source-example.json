@@ -1,0 +1,14 @@
+{
+    "tables": [],
+    "limit": [],
+    "query": null,
+    "depth": 0,
+    "outputfile": null,
+    "encoder": "sql",
+
+    "host": null,
+    "port": null,
+    "database": null,
+    "user": null,
+    "passwrd": null
+}
