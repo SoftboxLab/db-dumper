@@ -1,14 +1,14 @@
 {
-    "tables": [],
-    "limit": [],
+    "tables": ["itens_nota_fiscal"],
+    "limit": ["where id_nota_fiscal = 4388841"],
     "query": null,
     "depth": 0,
-    "outputfile": null,
+    "output": "/tmp/dump.sql",
     "encoder": "sql",
 
-    "host": null,
-    "port": null,
-    "database": null,
-    "user": null,
-    "passwrd": null
+    "host": "10.25.234.129",
+    "port": "4406",
+    "database": "arc_producao",
+    "user": "leonardo.caldas",
+    "password": "Own5yaSh6aN2cOw"
 }
