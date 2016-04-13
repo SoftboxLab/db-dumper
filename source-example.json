@@ -6,9 +6,9 @@
     "output": "/tmp/dump.sql",
     "encoder": "sql",
 
-    "host": "10.25.234.129",
-    "port": "4406",
-    "database": "arc_producao",
-    "user": "leonardo.caldas",
-    "password": "Own5yaSh6aN2cOw"
+    "host": "",
+    "port": "",
+    "database": "",
+    "user": "",
+    "password": ""
 }
