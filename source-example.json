@@ -1,14 +1,14 @@
 {
-    "tables": ["itens_nota_fiscal"],
-    "limit": ["where id_nota_fiscal = 4388841"],
+    "tables": ["ctt_definitivos_itens"],
+    "limit": ["where id_ctt_definitivo = 259"],
     "query": null,
-    "depth": 0,
+    "forceReferences": 0,
     "output": "/tmp/dump.sql",
     "encoder": "sql",
 
-    "host": "",
-    "port": "",
-    "database": "",
-    "user": "",
-    "password": ""
+    "host": null,
+    "port": null,
+    "database": null,
+    "user": null,
+    "password": null
 }
