@@ -8,6 +8,7 @@ var fs           = require('fs');
 
 function DBDumper(config, encoderName, outputFile) {
     var conn = DBConnection.create(config);
+    var externalMetadata = undefined;
     conn.connect();
 
     encoderName = (encoderName || 'sql').toLowerCase();
@@ -18,6 +19,16 @@ function DBDumper(config, encoderName, outputFile) {
     if (outputFile) {
         output = function(data, callback) {
             fs.appendFile(outputFile, data + '\n', callback);
+        }
+    }
+
+    if (config.metaData !== undefined) {
+        try {
+            var content = fs.readFileSync(config.metaData, "utf8").toString();
+            externalMetadata = JSON.parse(content);
+        } catch (e) {
+            console.log(e.message);
+            console.log('Could not read file ' + config.metaData + '. Exiting...');
         }
     }
 
@@ -79,7 +90,7 @@ function DBDumper(config, encoderName, outputFile) {
         // Marcando registro como visitado.
         Cache.set(recHash, true);
 
-        var references = []
+        var references = [];
 
         if (forceReferences > 0) {
             console.log('-- Forcing...');
@@ -203,6 +214,46 @@ function DBDumper(config, encoderName, outputFile) {
 
             var meta = result[0],
                 fks  = result[1];
+
+            var objFks = fks.reduce(function(prev, item) {
+                prev[item.table] = item;
+                return prev;
+            }, {});
+
+            // Verifica se foi fornecido relacionamento via arquivo de configuração
+            if (externalMetadata !== undefined) {
+                // Verifica se existe regras para a tabela requisitada
+                var metaData = externalMetadata.filter(function (item) {
+                    return item.table_name === tableName;
+                });
+
+                if (metaData.length > 0) {
+                    metaData.forEach(function (item) {
+                        if (item.table_fks !== undefined) {
+                            item.table_fks.forEach(function (fk) {
+                                if (objFks[fk.fk_table] !== undefined) {
+                                    objFks[fk.fk_table].cols.push({
+                                        fk: fk.col_name,
+                                        pk: fk.fk_column
+                                    });
+                                } else {
+                                    objFks[fk.fk_table] = {
+                                        table: fk.fk_table,
+                                        cols: [
+                                            {
+                                                fk: fk.col_name,
+                                                pk: fk.fk_column
+                                            }
+                                        ]
+                                    };
+                                }
+                            }.bind(this));
+                        }
+                    }.bind(this));
+                }
+            }
+
+            fks = Object.keys(objFks).map(function (key) { return objFks[key]; });
 
             async.map(records, dumpRecord.bind(null, tableName, forceReferences, meta, fks), callback);
         });

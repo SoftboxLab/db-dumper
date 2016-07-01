@@ -1,0 +1,23 @@
+[
+  {
+    "table_name": "usuarios",
+    "references": [
+      "pedidos"
+    ],
+    "table_fks": [],
+    "table_meta": []
+  },
+  {
+    "table_name": "pedidos",
+    "references": [],
+    "table_fks": [
+      {
+        "fk_name": "fk_pedidos_usuario",
+        "col_name": "id_usuario_criador",
+        "fk_table": "usuarios",
+        "fk_column": "id_usuario"
+      }
+    ],
+    "table_meta": []
+  }
+]

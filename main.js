@@ -18,6 +18,7 @@ program
   .option('-r, --force-references [depth]',         'References', parseInt, 0)
   .option('-o, --output <outputfile>',              'Name of output file')
   .option('-e, --encoder <' + encodersNames + '>',  'Name of encoder', new RegExp('^(' + encodersNames + ')$', 'ig'), 'sql')
+  .option('-m, --meta [source]',                    'Name of the JSON meta file source')
 
   .option('-H, --host <host>',          'Database host')
   .option('-P, --port <port>',          'Database port')
@@ -74,7 +75,8 @@ var dumper = new DBDumper({
     port: program.port,
     database: program.database,
     user: program.user,
-    password: program.password
+    password: program.password,
+    metaData: program.meta
 }, program.encoder, program.output);
 
 dumper.dump(entities, function(err) {
