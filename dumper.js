@@ -21,6 +21,7 @@ function DBDumper(config, encoderName, outputFile) {
         }
     }
 
+
     /**
      * Obtem os regisros da tabela pelos dados do filtro ({col1: valor1 ... coln: valorn}) fornecido.
      *
@@ -79,7 +80,7 @@ function DBDumper(config, encoderName, outputFile) {
         // Marcando registro como visitado.
         Cache.set(recHash, true);
 
-        var references = []
+        var references = [];
 
         if (forceReferences > 0) {
             console.log('-- Forcing...');

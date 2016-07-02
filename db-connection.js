@@ -4,6 +4,18 @@ var Cache = require('./cache');
 
 module.exports = {
     create: function(cfg) {
+
+        var externalMetadata = undefined;
+        if (cfg.metaData !== undefined) {
+            try {
+                var content = fs.readFileSync(cfg.metaData, "utf8").toString();
+                externalMetadata = JSON.parse(content);
+            } catch (e) {
+                console.log(e.message);
+                console.log('Could not read file ' + cfg.metaData + '. Exiting...');
+            }
+        }
+
         var conn = null;
 
         return {
@@ -51,8 +63,16 @@ module.exports = {
                         console.log(err);
                         throw err;
                     }
-
-                    callback && callback(null, result.map(function(ele) { return ele.table_name; }));
+                    var refs = result.map(function(ele) { return ele.table_name; });
+                    // Verifica se foi informado arquivo externo de metadado
+                    if (externalMetadata !== undefined) {
+                        // Verifica se foi informado referencias para a tabela pesquisada
+                        var referenciasExternas = externalMetadata.filter(item => item.table_name === tableName);
+                        if (referenciasExternas[0] !== undefined) {
+                            refs = refs.concat(referenciasExternas[0].references);
+                        }
+                    }
+                    callback && callback(null, refs);
                 });
             },
 
@@ -89,6 +109,46 @@ module.exports = {
                     if (fk != null) {
                         fks.push(fk);
                     }
+
+                    var objFks = fks.reduce(function(prev, item) {
+                        prev[item.table] = item;
+                        return prev;
+                    }, {});
+
+                    // Verifica se foi fornecido relacionamento via arquivo de configuração
+                    if (externalMetadata !== undefined) {
+                        // Verifica se existe regras para a tabela requisitada
+                        var metaData = externalMetadata.filter(function (item) {
+                            return item.table_name === tableName;
+                        });
+
+                        if (metaData.length > 0) {
+                            metaData.forEach(function (item) {
+                                if (item.table_fks !== undefined) {
+                                    item.table_fks.forEach(function (fk) {
+                                        if (objFks[fk.fk_table] !== undefined) {
+                                            objFks[fk.fk_table].cols.push({
+                                                fk: fk.col_name,
+                                                pk: fk.fk_column
+                                            });
+                                        } else {
+                                            objFks[fk.fk_table] = {
+                                                table: fk.fk_table,
+                                                cols: [
+                                                    {
+                                                        fk: fk.col_name,
+                                                        pk: fk.fk_column
+                                                    }
+                                                ]
+                                            };
+                                        }
+                                    }.bind(this));
+                                }
+                            }.bind(this));
+                        }
+                    }
+
+                    fks = Object.keys(objFks).map(function (key) { return objFks[key]; });
 
                     Cache.set('db-fk-' + tableName, fks);
 
