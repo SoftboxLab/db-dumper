@@ -47,3 +47,4 @@ Todos os parâmetros podem ser encontrados digitando ```node main.js --help```.
 |**-p** | string  | Senha utilizada para realizar a conexão com o banco de dados. Ex.: ```-p root``` | Sim |
 
 ## Exemplos
+
