@@ -165,3 +165,6 @@ O exemplo a seguir define as regras de relação para a relação da imagem supr
   }
 ]
 ```
+
+##Licença
+Inserir descrição da licença aqui
