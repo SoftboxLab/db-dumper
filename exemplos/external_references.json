@@ -13,7 +13,7 @@
     "table_fks": [
       {
         "fk_name": "fk_pedidos_usuario",
-        "col_name": "id_usuario_criador",
+        "col_name": "id_usuario_criacao",
         "fk_table": "usuarios",
         "fk_column": "id_usuario"
       }
