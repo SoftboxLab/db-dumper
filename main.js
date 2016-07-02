@@ -43,7 +43,7 @@ if (program.tables.length == 0) {
     process.exit(1);
 }
 
-if (!program.host || !program.port || !program.database || !program.user || !program.password) {
+if (!program.host || !program.port || !program.database || !program.user) {
     console.error('Informe os dados para conexão com o banco de dados.');
     process.exit(1);
 }
