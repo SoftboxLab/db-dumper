@@ -45,3 +45,5 @@ Todos os parâmetros podem ser encontrados digitando ```node main.js --help```.
 |**-d** | string  | Nome do banco de dados na qual será realizada a extração dos dados. Ex.: ```-d teste``` | Não |
 |**-u** | string  | Nome de usuário utilizado para realizar a conexão com o banco de dados. Ex.: ```-u root``` | Não |
 |**-p** | string  | Senha utilizada para realizar a conexão com o banco de dados. Ex.: ```-p root``` | Sim |
+
+## Exemplos
