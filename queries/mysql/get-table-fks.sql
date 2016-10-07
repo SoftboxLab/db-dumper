@@ -14,6 +14,6 @@ from INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
         and k.TABLE_NAME = c.TABLE_NAME
         and k.CONSTRAINT_NAME = c.CONSTRAINT_NAME
 where c.CONSTRAINT_TYPE = 'FOREIGN KEY'
-    and c.TABLE_NAME = ? -- table_name
-    and c.CONSTRAINT_SCHEMA = ? -- database
+    and c.TABLE_NAME = ?
+    and c.CONSTRAINT_SCHEMA = ?
 order by fk_name

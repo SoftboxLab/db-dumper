@@ -35,7 +35,7 @@ function DBDumper(config, encoderName, outputFile) {
             query += ' AND ' + k + ' = ' + "'" + filter[k] +  "'";
         }
 
-        conn.query(query, callback);
+        conn.query(query, null, callback);
     }
 
     /**
@@ -48,6 +48,8 @@ function DBDumper(config, encoderName, outputFile) {
      */
     function encodeRecord(tableName, meta, record, callback) {
         encoder(conn, tableName, meta, record, function(err, data) {
+            if (err) throw err;
+
             output(data, callback);
         });
     }
@@ -115,12 +117,16 @@ function DBDumper(config, encoderName, outputFile) {
      */
     function dumpReferences(tableName, forceReferences, meta, fks, record, callback) {
         conn.getReferences(tableName, function(err, refs) {
+            if (err) throw err;
+
             var fncsRefs = [];
 
             async.map(refs, function(refTable, callback) {
                 console.log('-- Getting fks: ' + refTable);
 
                 conn.getFKs(refTable, function(err, fks) {
+                    if (err) throw err;
+                    
                     var ret = fks.filter(function(fk) { return fk.table == tableName; })
                         .map(function(fk) {
                             var filter = fk.cols.reduce(function(filter, reg) {
@@ -176,6 +182,8 @@ function DBDumper(config, encoderName, outputFile) {
 
             return function(cb) {
                 getRecords(fk.table, filter, function(err, rows) {
+                    if (err) throw err;
+
                     dumpRecords(fk.table, forceReferences, rows, cb);
                 });
             };
@@ -217,7 +225,7 @@ function DBDumper(config, encoderName, outputFile) {
      *
      */
     function queryAndDump(entity, callback) {
-        conn.query(entity.query ? entity.query : 'select * from ' + entity.table + ' ' + entity.limit, function(err, rows) {
+        conn.query(entity.query ? entity.query : 'select * from ' + entity.table + ' ' + entity.limit, null, function(err, rows) {
             if (err) throw err;
 
             dumpRecords(entity.table, entity.forceReferences, rows, callback);

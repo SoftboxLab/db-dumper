@@ -6,6 +6,10 @@ module.exports = {
     create: function(cfg) {
         var conn = null;
 
+        var maxQuery = cfg.maxConnLimit || 100;
+        var qryCount = 0;
+        var queueCalls = [];
+
         return {
             connect: function() {
                 conn = mysql.createConnection(cfg);
@@ -14,23 +18,49 @@ module.exports = {
             },
 
             query: function(query, params, callback) {
-                //console.log('Query: ' + query);
+                var self = this;
 
-                if (params && params.length > 0) {
-                    conn.query(query, params, callback);
-                    return;
+                var fnc = function() {
+                    // console.log('Callback', maxQuery, qryCount, queueCalls.length);
+                    qryCount--;
+
+                    callback.apply(this, arguments);
+
+                    while (queueCalls.length > 0 && qryCount < maxQuery) {
+                        self.query.apply(self, queueCalls.shift());
+                    }
                 }
 
-                conn.query(query, callback);
+                if (qryCount < maxQuery) {
+                    qryCount++;
+
+                    if (params && params.length > 0) {
+                        conn.query(query, params, fnc);
+                        return;
+                    }
+
+                    conn.query(query, fnc);
+
+                } else {
+                    //console.log('Pushing...', queueCalls.length);
+
+                    queueCalls.push(arguments);
+                }
             },
 
             queryFile: function(fileName, params, callback) {
-                var self = this;
+                var pathFileName = './queries/mysql/' + fileName + '.sql';                
+                
+                var script = Cache.get('File-' + pathFileName);
 
-                fs.readFile('./queries/mysql/' + fileName + '.sql', function (err, data) {
-                    if (err) throw err;
+                if (!script) {
+                    script = fs.readFileSync(pathFileName, {encoding: 'UTF-8'});
+                }
 
-                    self.query(data + '', params || [], callback);
+                Cache.set('File-' + pathFileName, script);
+
+                this.query(script, params || [], function(err, data) {
+                    callback(err, data);
                 });
             },
 
@@ -64,7 +94,11 @@ module.exports = {
                     return;
                 }
 
+                // console.log('FK: ', tableName);
+
                 this.queryFile('get-table-fks', [tableName, cfg.database], function groupFKs(err, result) {
+                    // console.log('===>', err, result);
+                    
                     if (err) throw err;
 
                     var last = null,
@@ -103,6 +137,8 @@ module.exports = {
                     callback(null, meta);
                     return;
                 }
+
+                // console.log('Meta: ', tableName);
 
                 this.queryFile('get-table-meta', [tableName, cfg.database], function(err, rows) {
                     if (err) throw err;

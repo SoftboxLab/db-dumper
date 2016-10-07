@@ -19,11 +19,12 @@ program
   .option('-o, --output <outputfile>',              'Name of output file')
   .option('-e, --encoder <' + encodersNames + '>',  'Name of encoder', new RegExp('^(' + encodersNames + ')$', 'ig'), 'sql')
 
-  .option('-H, --host <host>',          'Database host')
-  .option('-P, --port <port>',          'Database port')
-  .option('-d, --database <database>',  'Database schema')
-  .option('-u, --user <user>',          'Database username')
-  .option('-p, --password <passwrd>',   'Database password')
+  .option('-H, --host <host>',           'Database host')
+  .option('-P, --port <port>',           'Database port')
+  .option('-d, --database <database>',   'Database schema')
+  .option('-u, --user <user>',           'Database username')
+  .option('-p, --password <password>',   'Database password')
+  .option('-c, --max-conn-limit []', 'Database max limit of parallel connections')
 
   .parse(process.argv);
 
@@ -74,7 +75,8 @@ var dumper = new DBDumper({
     port: program.port,
     database: program.database,
     user: program.user,
-    password: program.password
+    password: program.password,
+    maxConnLimit: program.maxConnLimit || 100,
 }, program.encoder, program.output);
 
 dumper.dump(entities, function(err) {
